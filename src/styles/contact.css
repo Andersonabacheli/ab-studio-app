@@ -1,0 +1,85 @@
+.section-head--center {
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contact-box {
+  max-width: 640px;
+  margin: 0 auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  padding: 48px;
+}
+
+/* Honeypot: escondido visualmente, mas presente no DOM/DOM tree para bots simples */
+.contact-box__honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.field {
+  margin-bottom: 22px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  color: var(--color-text-dim);
+  margin-bottom: 8px;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  padding: 13px 14px;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 15px;
+}
+
+.field input[aria-invalid='true'],
+.field textarea[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.field__error {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--color-danger);
+}
+
+.contact-box__submit {
+  width: 100%;
+  justify-content: center;
+}
+
+.contact-box__status {
+  margin-top: 16px;
+  font-size: 14px;
+  text-align: center;
+  color: var(--color-text-dim);
+  min-height: 20px;
+}
+
+@media (max-width: 600px) {
+  .contact-box {
+    padding: 30px 22px;
+  }
+}

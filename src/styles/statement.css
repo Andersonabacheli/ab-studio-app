@@ -1,0 +1,18 @@
+.statement {
+  text-align: center;
+  padding: 100px 0;
+}
+
+.statement__inner {
+  max-width: 820px;
+}
+
+.statement h2 {
+  font-size: clamp(26px, 4vw, 42px);
+  color: var(--color-text-dim);
+}
+
+.statement__accent {
+  color: var(--color-accent);
+  font-weight: 600;
+}

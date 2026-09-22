@@ -1,0 +1,154 @@
+.admin-container {
+  min-height: 100vh;
+  background: #0d0d0d;
+  color: #f5f5f5;
+  padding: 2.5rem;
+  font-family: 'Inter', 'Manrope', sans-serif;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.admin-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.admin-header .accent {
+  color: #e8a33d;
+}
+
+.admin-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  background: #161616;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  flex: 1;
+  min-width: 140px;
+}
+
+.stat-card .stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #e8a33d;
+}
+
+.stat-card .stat-label {
+  font-size: 0.85rem;
+  color: #999;
+  margin-top: 0.25rem;
+}
+
+.admin-table-wrapper {
+  background: #161616;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+table.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table thead {
+  background: #1f1f1f;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 1rem 1.25rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #999;
+}
+
+.admin-table td {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #262626;
+  font-size: 0.9rem;
+  vertical-align: top;
+}
+
+.admin-table tr:hover td {
+  background: #1a1a1a;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-novo { background: #2a3a5c; color: #7ea6ff; }
+.badge-em_contato { background: #5c4a1f; color: #e8a33d; }
+.badge-fechado { background: #1f5c33; color: #6fdb8f; }
+.badge-descartado { background: #5c1f1f; color: #ff8080; }
+
+.admin-table input,
+.admin-table select {
+  width: 100%;
+  background: #0d0d0d;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 0.4rem 0.5rem;
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.action-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 0.4rem;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-top: 1px solid #262626;
+}
+
+.pagination-info {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-edit { background: #2a3a5c; color: #7ea6ff; }
+.btn-edit:hover { background: #35486f; }
+
+.btn-delete { background: #5c1f1f; color: #ff8080; }
+.btn-delete:hover { background: #6e2626; }
+
+.btn-save { background: #1f5c33; color: #6fdb8f; }
+.btn-save:hover { background: #256e3d; }
+
+.btn-cancel { background: #2a2a2a; color: #ccc; }
+.btn-cancel:hover { background: #333; }

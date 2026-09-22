@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+# Segredos — nunca versionar
+.env
+.env.*
+!.env.example
+
+# Editor / SO
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
