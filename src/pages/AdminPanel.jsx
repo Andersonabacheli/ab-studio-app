@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
+import OrcamentoDetalhado from '../components/OrcamentoDetalhado';
 import '../styles/admin.css';
 
 const ITENS_POR_PAGINA = 10;
@@ -14,6 +15,7 @@ export default function AdminPanel() {
   const [formEdicao, setFormEdicao] = useState({});
   const [pagina, setPagina] = useState(0);
   const [totalRegistros, setTotalRegistros] = useState(0);
+  const [orcamentoSelecionado, setOrcamentoSelecionado] = useState(null);
 
   // Filtros
   const [filtroStatus, setFiltroStatus] = useState('todos');
@@ -33,7 +35,7 @@ export default function AdminPanel() {
   const [salvandoNovo, setSalvandoNovo] = useState(false);
   const [erroNovo, setErroNovo] = useState(null);
 
-  async function fetchOrcamentos() {
+  const fetchOrcamentos = useCallback(async () => {
     setLoading(true);
     const inicio = pagina * ITENS_POR_PAGINA;
     const fim = inicio + ITENS_POR_PAGINA - 1;
@@ -67,7 +69,7 @@ export default function AdminPanel() {
       setErro(null);
     }
     setLoading(false);
-  }
+  }, [pagina, filtroStatus, filtroDataInicio, filtroDataFim]);
 
   useEffect(() => {
     fetchOrcamentos();
@@ -86,7 +88,7 @@ export default function AdminPanel() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [pagina, filtroStatus, filtroDataInicio, filtroDataFim]);
+  }, [fetchOrcamentos]);
 
   function handleFiltroStatusChange(valor) {
     setFiltroStatus(valor);
@@ -138,7 +140,7 @@ export default function AdminPanel() {
       .eq('id', id);
 
     if (error) {
-      alert('Erro ao salvar: ' + error.message);
+      window.alert('Erro ao salvar: ' + error.message);
       return;
     }
 
@@ -152,7 +154,7 @@ export default function AdminPanel() {
     const { error } = await supabase.from('orcamentos').delete().eq('id', id);
 
     if (error) {
-      alert('Erro ao apagar: ' + error.message);
+      window.alert('Erro ao apagar: ' + error.message);
       return;
     }
   }
@@ -224,6 +226,10 @@ export default function AdminPanel() {
       <div className="admin-header">
         <h1>Painel <span className="accent">Administrativo</span></h1>
         <button className="action-btn btn-delete" onClick={handleLogout}>Sair</button>
+      </div>
+
+      <div className="admin-notice">
+        ℹ️ Orçamentos com status <strong>novo</strong> ou <strong>descartado</strong> são excluídos automaticamente após 30 dias, conforme política de retenção de dados (LGPD).
       </div>
 
       <div className="admin-filters">
@@ -422,6 +428,7 @@ export default function AdminPanel() {
                           <td>
                             <button className="action-btn btn-edit" onClick={() => iniciarEdicao(item)}>Editar</button>
                             <button className="action-btn btn-delete" onClick={() => apagarOrcamento(item.id)}>Apagar</button>
+                            <button className="action-btn btn-save" onClick={() => setOrcamentoSelecionado(item)}>Orçamento</button>
                           </td>
                         </>
                       )}
@@ -448,6 +455,13 @@ export default function AdminPanel() {
             </button>
           </div>
         </div>
+      )}
+
+      {orcamentoSelecionado && (
+        <OrcamentoDetalhado
+          orcamento={orcamentoSelecionado}
+          onFechar={() => setOrcamentoSelecionado(null)}
+        />
       )}
     </div>
   );
