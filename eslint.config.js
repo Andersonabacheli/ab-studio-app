@@ -16,16 +16,21 @@ export default [
       parserOptions: {
         ecmaFeatures: { jsx: true },
       },
-      globals: {
-        window: 'readonly',
-        document: 'readonly',
-        console: 'readonly',
-        fetch: 'readonly',
-        AbortController: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        // import.meta.env é tratado pelo próprio parser do Vite/ESLint moderno
-      },
+     globals: {
+  window: 'readonly',
+  document: 'readonly',
+  console: 'readonly',
+  fetch: 'readonly',
+  AbortController: 'readonly',
+  setTimeout: 'readonly',
+  clearTimeout: 'readonly',
+  alert: 'readonly',           
+  confirm: 'readonly',        
+  localStorage: 'readonly',    
+  sessionStorage: 'readonly',  
+  navigator: 'readonly',       
+  
+},
     },
     settings: {
       react: { version: 'detect' },
