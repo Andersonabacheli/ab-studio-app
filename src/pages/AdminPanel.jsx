@@ -2,9 +2,32 @@ import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import OrcamentoDetalhado from '../components/OrcamentoDetalhado';
+import { PROJECT_TYPES, EMAIL_REGEX, PHONE_REGEX } from '../utils/validation';
 import '../styles/admin.css';
 
 const ITENS_POR_PAGINA = 10;
+const STATUS = ['novo', 'em_contato', 'fechado', 'descartado'];
+
+// Converte "AAAA-MM-DD" (data local do navegador) para ISO em UTC,
+// para o filtro respeitar o fuso horário do Brasil.
+function inicioDoDiaISO(data) {
+  return new Date(`${data}T00:00:00`).toISOString();
+}
+
+function inicioDoDiaSeguinteISO(data) {
+  const d = new Date(`${data}T00:00:00`);
+  d.setDate(d.getDate() + 1);
+  return d.toISOString();
+}
+
+function validarOrcamento({ name, phone, email, project_type, message }) {
+  if ((name || '').trim().length < 2) return 'Nome muito curto (mín. 2 caracteres).';
+  if (!EMAIL_REGEX.test((email || '').trim())) return 'E-mail inválido.';
+  if (!PHONE_REGEX.test((phone || '').trim())) return 'Telefone inválido. Use o formato (11) 91234-5678.';
+  if (!PROJECT_TYPES.includes(project_type)) return 'Tipo de projeto inválido.';
+  if ((message || '').trim().length < 10) return 'Mensagem muito curta (mín. 10 caracteres).';
+  return null;
+}
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -50,11 +73,11 @@ export default function AdminPanel() {
     }
 
     if (filtroDataInicio) {
-      query = query.gte('created_at', `${filtroDataInicio}T00:00:00`);
+      query = query.gte('created_at', inicioDoDiaISO(filtroDataInicio));
     }
 
     if (filtroDataFim) {
-      query = query.lte('created_at', `${filtroDataFim}T23:59:59`);
+      query = query.lt('created_at', inicioDoDiaSeguinteISO(filtroDataFim));
     }
 
     query = query.range(inicio, fim);
@@ -127,14 +150,20 @@ export default function AdminPanel() {
   }
 
   async function salvarEdicao(id) {
+    const erroValidacao = validarOrcamento(formEdicao);
+    if (erroValidacao) {
+      window.alert(erroValidacao);
+      return;
+    }
+
     const { error } = await supabase
       .from('orcamentos')
       .update({
-        name: formEdicao.name,
-        email: formEdicao.email,
-        phone: formEdicao.phone,
+        name: formEdicao.name.trim(),
+        email: formEdicao.email.trim(),
+        phone: formEdicao.phone.trim(),
         project_type: formEdicao.project_type,
-        message: formEdicao.message,
+        message: formEdicao.message.trim(),
         status: formEdicao.status,
       })
       .eq('id', id);
@@ -145,6 +174,7 @@ export default function AdminPanel() {
     }
 
     setEditandoId(null);
+    fetchOrcamentos(); // não depende só do realtime para atualizar a lista
   }
 
   async function apagarOrcamento(id) {
@@ -156,6 +186,13 @@ export default function AdminPanel() {
     if (error) {
       window.alert('Erro ao apagar: ' + error.message);
       return;
+    }
+
+    // Se apagou o último item da página, volta uma página.
+    if (orcamentos.length === 1 && pagina > 0) {
+      setPagina((p) => p - 1);
+    } else {
+      fetchOrcamentos();
     }
   }
 
@@ -194,17 +231,19 @@ export default function AdminPanel() {
     e.preventDefault();
     setErroNovo(null);
 
-    const { name, phone, email, project_type, message } = novoOrcamento;
-
-    if (name.trim().length < 2) return setErroNovo('Nome muito curto (mín. 2 caracteres).');
-    if (email.trim().length < 5) return setErroNovo('Email muito curto.');
-    if (phone.trim().length < 8) return setErroNovo('Telefone muito curto.');
-    if (project_type.trim().length < 2) return setErroNovo('Tipo de projeto inválido.');
-    if (message.trim().length < 10) return setErroNovo('Observação muito curta (mín. 10 caracteres).');
+    const erroValidacao = validarOrcamento(novoOrcamento);
+    if (erroValidacao) return setErroNovo(erroValidacao);
 
     setSalvandoNovo(true);
 
-    const { error } = await supabase.from('orcamentos').insert([novoOrcamento]);
+    const payload = {
+      ...novoOrcamento,
+      name: novoOrcamento.name.trim(),
+      phone: novoOrcamento.phone.trim(),
+      email: novoOrcamento.email.trim(),
+      message: novoOrcamento.message.trim(),
+    };
+    const { error } = await supabase.from('orcamentos').insert([payload]);
 
     setSalvandoNovo(false);
 
@@ -215,6 +254,7 @@ export default function AdminPanel() {
 
     limparFormNovo();
     setMostrarFormNovo(false);
+    fetchOrcamentos();
   }
 
   if (erro) return <div className="admin-container" style={{ color: '#ff8080' }}>Erro: {erro}</div>;
@@ -237,10 +277,7 @@ export default function AdminPanel() {
           <label>Status</label>
           <select value={filtroStatus} onChange={(e) => handleFiltroStatusChange(e.target.value)}>
             <option value="todos">Todos</option>
-            <option value="novo">novo</option>
-            <option value="em_contato">em_contato</option>
-            <option value="fechado">fechado</option>
-            <option value="descartado">descartado</option>
+            {STATUS.map((st) => <option key={st} value={st}>{st}</option>)}
           </select>
         </div>
 
@@ -313,12 +350,7 @@ export default function AdminPanel() {
                   value={novoOrcamento.project_type}
                   onChange={(e) => handleNovoChange('project_type', e.target.value)}
                 >
-                  <option value="Website">Website</option>
-                  <option value="Landing Page">Landing Page</option>
-                  <option value="Aplicativo">Aplicativo</option>
-                  <option value="Sistema">Sistema</option>
-                  <option value="Dashboard">Dashboard</option>
-                  <option value="Outro">Outro</option>
+                  {PROJECT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
 
@@ -328,10 +360,7 @@ export default function AdminPanel() {
                   value={novoOrcamento.status}
                   onChange={(e) => handleNovoChange('status', e.target.value)}
                 >
-                  <option value="novo">novo</option>
-                  <option value="em_contato">em_contato</option>
-                  <option value="fechado">fechado</option>
-                  <option value="descartado">descartado</option>
+                  {STATUS.map((st) => <option key={st} value={st}>{st}</option>)}
                 </select>
               </div>
             </div>
@@ -401,14 +430,15 @@ export default function AdminPanel() {
                             <input value={formEdicao.email || ''} onChange={(e) => handleChange('email', e.target.value)} style={{ marginBottom: '0.3rem' }} />
                             <input value={formEdicao.phone || ''} onChange={(e) => handleChange('phone', e.target.value)} />
                           </td>
-                          <td><input value={formEdicao.project_type || ''} onChange={(e) => handleChange('project_type', e.target.value)} /></td>
+                          <td>
+                            <select value={formEdicao.project_type || ''} onChange={(e) => handleChange('project_type', e.target.value)}>
+                              {PROJECT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                            </select>
+                          </td>
                           <td><input value={formEdicao.message || ''} onChange={(e) => handleChange('message', e.target.value)} /></td>
                           <td>
                             <select value={formEdicao.status || ''} onChange={(e) => handleChange('status', e.target.value)}>
-                              <option value="novo">novo</option>
-                              <option value="em_contato">em_contato</option>
-                              <option value="fechado">fechado</option>
-                              <option value="descartado">descartado</option>
+                              {STATUS.map((st) => <option key={st} value={st}>{st}</option>)}
                             </select>
                           </td>
                           <td>{new Date(item.created_at).toLocaleDateString('pt-BR')}</td>

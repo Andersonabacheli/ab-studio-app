@@ -47,16 +47,6 @@ export default function Contact() {
         message: sanitizeInput(values.message),
       };
 
-      // ===== LOG TEMPORÁRIO PARA DEBUG =====
-      console.log('PAYLOAD ENVIADO:', payload);
-      console.log('TAMANHOS:', {
-        name: payload.name.length,
-        phone: payload.phone.length,
-        email: payload.email.length,
-        project_type: payload.project_type.length,
-        message: payload.message.length,
-      });
-      // ======================================
 
       // Dispara o INSERT para a tabela orcamentos no Supabase
       const { error } = await supabase

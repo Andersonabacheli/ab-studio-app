@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { PROJECT_TYPES as TIPOS, EMAIL_REGEX, PHONE_REGEX, FIELD_LIMITS, sanitizeInput } from '../utils/validation';
 import '../styles/chatbot.css';
-
-const TIPOS = ['Website', 'Landing Page', 'Aplicativo', 'Sistema', 'Dashboard', 'Outro'];
 
 export default function ChatBot() {
   const [aberto, setAberto] = useState(false);
@@ -30,31 +29,32 @@ export default function ChatBot() {
   }
 
   function avancarNome() {
-    if (inputAtual.trim().length < 2) {
+    const nome = sanitizeInput(inputAtual);
+    if (nome.length < 2 || nome.length > FIELD_LIMITS.name) {
       setErroMsg('Por favor, digite um nome com pelo menos 2 letras.');
       return;
     }
-    setDados((prev) => ({ ...prev, nome: inputAtual.trim() }));
+    setDados((prev) => ({ ...prev, nome }));
     setEtapa('telefone');
     setInputAtual('');
     setErroMsg('');
   }
 
   function avancarTelefone() {
-    if (inputAtual.trim().length < 8) {
-      setErroMsg('Digite um telefone válido, com DDD.');
+    const telefone = sanitizeInput(inputAtual);
+    if (!PHONE_REGEX.test(telefone)) {
+      setErroMsg('Digite um telefone válido, com DDD. Ex: (11) 91234-5678');
       return;
     }
-    setDados((prev) => ({ ...prev, telefone: inputAtual.trim() }));
+    setDados((prev) => ({ ...prev, telefone }));
     setEtapa('email');
     setInputAtual('');
     setErroMsg('');
   }
 
   function avancarEmail() {
-    const email = inputAtual.trim();
-    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!emailValido) {
+    const email = sanitizeInput(inputAtual);
+    if (!EMAIL_REGEX.test(email) || email.length > FIELD_LIMITS.email) {
       setErroMsg('Digite um e-mail válido.');
       return;
     }
@@ -65,6 +65,7 @@ export default function ChatBot() {
   }
 
   async function enviarOrcamento() {
+    if (etapa === 'enviando') return; // evita envio duplicado
     setEtapa('enviando');
 
     const payload = {
@@ -92,7 +93,7 @@ export default function ChatBot() {
         <div className="chatbot-panel">
           <div className="chatbot-header">
             <span>AB Studio — Atendimento</span>
-            <button className="chatbot-close" onClick={toggleChat}>✕</button>
+            <button className="chatbot-close" onClick={toggleChat} aria-label="Fechar atendimento">✕</button>
           </div>
 
           <div className="chatbot-body">
@@ -222,7 +223,7 @@ export default function ChatBot() {
         </div>
       )}
 
-      <button className="chatbot-fab" onClick={toggleChat} aria-label="Abrir atendimento">
+      <button className="chatbot-fab" onClick={toggleChat} aria-label={aberto ? 'Fechar atendimento' : 'Abrir atendimento'}>
         {aberto ? '✕' : '💬'}
       </button>
     </div>

@@ -17,24 +17,16 @@ src/
 
 ## Como rodar localmente
 
-Este ambiente de geração de código não tem acesso à internet, então as
-dependências (`node_modules`) não foram instaladas aqui — faça isso na sua
-máquina:
-
 ```bash
 npm install
 cp .env.example .env   # depois preencha com suas chaves do Supabase
 npm run dev
 ```
 
-## Validação já realizada
+Antes de publicar, rode `npm run lint` e `npm run build`.
 
-- Todos os arquivos `.jsx`/`.js` de `src/` foram checados com `tsc --noEmit`
-  (sintaxe e uso de JSX) — nenhum erro encontrado.
-- O layout e CSS reaproveitam o wireframe já validado visualmente com você.
-- `npm run build` e `npm run lint` ainda precisam ser rodados na sua máquina
-  (dependem de instalar pacotes do npm, que este ambiente não consegue
-  baixar). Rode os dois antes de publicar.
+Na Vercel, configure `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` em
+*Project Settings > Environment Variables* — sem elas o site não inicia.
 
 ## Notas de segurança importantes
 

@@ -1,5 +1,5 @@
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^\(?\d{2}\)?[\s-]?9?\d{4}[\s-]?\d{4}$/;
+export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const PHONE_REGEX = /^\(?\d{2}\)?[\s-]?9?\d{4}[\s-]?\d{4}$/;
 
 export const PROJECT_TYPES = [
   'Website',
